@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-script_dir="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 dry="0"
 
-while [[ $# > 0 ]]; do
+while [[ $# -gt 0 ]]; do
     if [[ "$1" == "--dry" ]]; then
         dry="1"
     fi
@@ -11,45 +12,65 @@ while [[ $# > 0 ]]; do
 done
 
 log() {
-    if [[ $dry == "1" ]]; then
-        echo "[DRY_RUN]: $@"
+    if [[ "$dry" == "1" ]]; then
+        echo "[DRY_RUN]: $*"
     else
-        echo "$@"
+        echo "$*"
     fi
 }
 
 execute() {
-    log "execute: $@"
-    if [[ $dry == "1" ]]; then
+    log "execute: $*"
+    if [[ "$dry" == "1" ]]; then
         return
     fi
 
     "$@"
 }
 
-log "--------- bootstrap ---------"
-
-cd $script_dir
 copy_dir() {
-    pushd $1 >/dev/null
-    to=$2
-    dirs=$(find . -maxdepth 1 -mindepth 1 -type d)
-    for dir in $dirs; do
-        execute mkdir -p "$to/$dir"
-        execute cp -r "$dir/." "$to/$dir/"
-    done
-    popd >/dev/null
+    local from="$1"
+    local to="$2"
+    if [[ ! -d "$from" ]]; then
+        echo "copy_dir: source directory not found: $from" >&2
+        exit 1
+    fi
+
+    local source_directory
+    local directory_name
+    while IFS= read -r -d '' source_directory; do
+        directory_name="$(basename "$source_directory")"
+        execute mkdir -p "$to/$directory_name"
+        execute cp -r "$source_directory/." "$to/$directory_name/"
+    done < <(find "$from" -mindepth 1 -maxdepth 1 -type d -print0)
 }
 
 copy_file() {
-    from=$1
-    to=$2
-    name=$(basename $from)
-    execute cp $from $to/$name
+    local from="$1"
+    local to="$2"
+    local name
+    name="$(basename "$from")"
+    execute cp "$from" "$to/$name"
 }
+
+remove_retired_path() {
+    local retired_path="$1"
+    if [[ ! -e "$retired_path" ]]; then
+        return
+    fi
+    execute rm -rf "$retired_path"
+}
+
+log "--------- bootstrap ---------"
+
+cd "$script_dir"
 
 copy_file shell/.specialrc ~/
 copy_file shell/.zprofile ~/
 copy_file .ready-tmux ~/
-copy_dir .config ${XDG_CONFIG_HOME:-$HOME/.config}
-copy_dir .local $HOME/.local
+copy_dir .config "${XDG_CONFIG_HOME:-$HOME/.config}"
+copy_dir .local "$HOME/.local"
+
+# copy_dir only overlays, so the scripts that moved to .local/bin would
+# otherwise stay behind here as stale duplicates.
+remove_retired_path "$HOME/.local/scripts"
