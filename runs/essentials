@@ -136,6 +136,15 @@ install_postgresql() {
     brew install postgresql@17
 }
 
+install_python() {
+    if brew list python &>/dev/null; then
+        log "python: already installed, skipping"
+        return
+    fi
+    log "python: installing..."
+    brew install python
+}
+
 install_ghostty() {
     if [ -d "/Applications/Ghostty.app" ]; then
         log "ghostty: already installed, skipping"
@@ -166,5 +175,6 @@ install_colima
 install_docker_compose
 install_pnpm
 install_postgresql
+install_python
 install_ghostty
 install_arc

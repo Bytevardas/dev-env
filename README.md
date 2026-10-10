@@ -16,7 +16,7 @@ Open neovim: lazy.nvim installs the plugin versions pinned in `lazy-lock.json`, 
 
 ## What's in here
 
-- **Essentials** — brew, git, gh, nvm + Node.js LTS, goenv + Go (latest stable), docker + docker-compose + colima, pnpm, postgresql@17, ghostty, arc
+- **Essentials** — brew, git, gh, nvm + Node.js LTS, goenv + Go (latest stable), docker + docker-compose + colima, pnpm, postgresql@17, python, ghostty, arc
 - **Neovim** — LSP (Go, TypeScript, Rust, Zig, Lua), format-on-save, telescope, harpoon, treesitter, gruvbox
 - **Tmux** — C-a prefix, vi copy mode, project sessionizer via C-a f
 - **Shell** — aliases and zsh profile (homebrew, ~/.local/bin, nvm, goenv, postgresql PATH)
