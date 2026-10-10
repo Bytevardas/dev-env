@@ -3,13 +3,22 @@ set -e
 
 log() { echo "[essentials] $*"; }
 
+load_brew_into_path() {
+    if [ ! -x /opt/homebrew/bin/brew ]; then
+        return
+    fi
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+}
+
 install_brew() {
+    load_brew_into_path
     if command -v brew &>/dev/null; then
         log "brew: already installed, skipping"
         return
     fi
     log "brew: installing..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    load_brew_into_path
 }
 
 install_nvm() {
@@ -91,6 +100,15 @@ install_docker() {
     brew install docker
 }
 
+install_colima() {
+    if command -v colima &>/dev/null; then
+        log "colima: already installed, skipping"
+        return
+    fi
+    log "colima: installing..."
+    brew install colima
+}
+
 install_docker_compose() {
     if command -v docker-compose &>/dev/null; then
         log "docker-compose: already installed, skipping"
@@ -144,6 +162,7 @@ install_node
 install_goenv
 install_go
 install_docker
+install_colima
 install_docker_compose
 install_pnpm
 install_postgresql
