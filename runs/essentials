@@ -61,16 +61,17 @@ install_go() {
         log "go: goenv not available, skipping"
         return
     fi
-    eval "$(goenv init -)"
+    # goenv guesses the shell from $SHELL and would emit zsh syntax here.
+    eval "$(goenv init - bash)"
 
     latest=$(goenv install --list | grep -E '^\s+[0-9]+\.[0-9]+\.[0-9]+$' | tail -1 | tr -d ' ')
-    if goenv versions 2>/dev/null | grep -qF "$latest"; then
+    if goenv list --bare 2>/dev/null | grep -qxF "$latest"; then
         log "go: $latest already installed, skipping"
         return
     fi
     log "go: installing $latest..."
     goenv install "$latest"
-    goenv global "$latest"
+    goenv use "$latest" --global
 }
 
 install_git() {
