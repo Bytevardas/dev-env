@@ -1,8 +1,77 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-git clone -b v0.12.2 https://github.com/neovim/neovim.git $HOME/personal/neovim
-brew install cmake gettext luajit
+neovim_version="v0.12.2"
+neovim_directory="$HOME/personal/neovim"
 
-cd $HOME/personal/neovim
-make CMAKE_BUILD_TYPE=RelWithDebInfo
-sudo make install
+log() { echo "[neovim] $*"; }
+
+load_brew_into_path() {
+    if [ ! -x /opt/homebrew/bin/brew ]; then
+        return
+    fi
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+}
+
+installed_neovim_version() {
+    if ! command -v nvim &>/dev/null; then
+        return
+    fi
+    nvim --version | awk 'NR == 1 { print $2 }'
+}
+
+checked_out_neovim_tag() {
+    git -C "$neovim_directory" describe --tags --exact-match 2>/dev/null || true
+}
+
+install_build_dependency() {
+    local formula="$1"
+    if brew list "$formula" &>/dev/null; then
+        log "$formula: already installed, skipping"
+        return
+    fi
+    log "$formula: installing..."
+    brew install "$formula"
+}
+
+clone_neovim() {
+    if [ -d "$neovim_directory" ]; then
+        log "source: already cloned, skipping"
+        return
+    fi
+    log "source: cloning $neovim_version..."
+    git clone -b "$neovim_version" https://github.com/neovim/neovim.git "$neovim_directory"
+}
+
+check_out_neovim_version() {
+    if [ "$(checked_out_neovim_tag)" == "$neovim_version" ]; then
+        log "source: $neovim_version already checked out, skipping"
+        return
+    fi
+    log "source: switching to $neovim_version..."
+    # Build output and bundled dependencies left over from another
+    # version break or mislink the next build.
+    make -C "$neovim_directory" distclean
+    git -C "$neovim_directory" fetch --tags --force origin
+    git -C "$neovim_directory" checkout "$neovim_version"
+}
+
+build_and_install_neovim() {
+    log "building $neovim_version..."
+    make -C "$neovim_directory" CMAKE_BUILD_TYPE=RelWithDebInfo
+    sudo make -C "$neovim_directory" install
+}
+
+load_brew_into_path
+
+if [ "$(installed_neovim_version)" == "$neovim_version" ]; then
+    log "$neovim_version already installed, skipping"
+    exit 0
+fi
+
+install_build_dependency cmake
+install_build_dependency gettext
+install_build_dependency luajit
+clone_neovim
+check_out_neovim_version
+build_and_install_neovim
