@@ -48,9 +48,9 @@ return {
     vim.lsp.config("lua_ls", {
       settings = {
         Lua = {
-          runtime = { version = "Lua 5.1" },
+          runtime = { version = "LuaJIT" },
           diagnostics = {
-            globals = { "bit", "vim", "it", "describe", "before_each", "after_each" },
+            globals = { "vim", "it", "describe", "before_each", "after_each" },
           },
         },
       },
