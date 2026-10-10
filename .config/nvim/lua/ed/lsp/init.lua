@@ -20,12 +20,15 @@ return {
 
     local mason_registry = require("mason-registry")
     local ensure_installed = { "prettier", "gofumpt", "goimports", "stylua", "sqlfluff" }
-    for _, tool in ipairs(ensure_installed) do
-      local pkg = mason_registry.get_package(tool)
-      if not pkg:is_installed() then
-        pkg:install()
+    -- On first launch the registry is not downloaded yet and get_package throws.
+    mason_registry.refresh(function()
+      for _, tool in ipairs(ensure_installed) do
+        local pkg = mason_registry.get_package(tool)
+        if not pkg:is_installed() then
+          pkg:install()
+        end
       end
-    end
+    end)
 
     vim.lsp.config("*", { capabilities = capabilities })
 
