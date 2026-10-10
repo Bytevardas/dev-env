@@ -8,6 +8,7 @@ Prefix: `C-a` (Ctrl+a, then release, then press next key)
 | Key | Action |
 |-----|--------|
 | `Ctrl+f` (in nvim) | Fuzzy-find project, create/switch session |
+| `C-a f` | Same, from anywhere in tmux |
 | `C-a s` | List sessions |
 | `C-a w` | List sessions + windows |
 | `C-a (` | Previous session |
@@ -125,9 +126,9 @@ Leader: `Space`
 ### Diagnostics (Trouble)
 | Key | Action |
 |-----|--------|
-| `Space tt` | Toggle trouble list |
-| `[t` | Next trouble item |
-| `]t` | Previous trouble item |
+| `Space tt` | Toggle trouble diagnostics list |
+| `[t` | Previous trouble item |
+| `]t` | Next trouble item |
 
 ### Utilities
 | Key | Action |
