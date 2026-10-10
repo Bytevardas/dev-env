@@ -1,6 +1,43 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-git clone git@github.com:junegunn/fzf.git $HOME/personal/fzf
-$HOME/personal/fzf/install
+fzf_directory="$HOME/personal/fzf"
 
-brew install deno
+log() { echo "[libs] $*"; }
+
+load_brew_into_path() {
+    if [ ! -x /opt/homebrew/bin/brew ]; then
+        return
+    fi
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+}
+
+clone_fzf() {
+    if [ -d "$fzf_directory" ]; then
+        log "fzf: already cloned, skipping"
+        return
+    fi
+    log "fzf: cloning..."
+    git clone https://github.com/junegunn/fzf.git "$fzf_directory"
+}
+
+install_fzf() {
+    log "fzf: installing..."
+    # --all answers every prompt with yes, as the interactive run did;
+    # bash and fish are excluded because only zsh is used here.
+    "$fzf_directory/install" --all --no-bash --no-fish
+}
+
+install_deno() {
+    if command -v deno &>/dev/null; then
+        log "deno: already installed, skipping"
+        return
+    fi
+    log "deno: installing..."
+    brew install deno
+}
+
+load_brew_into_path
+clone_fzf
+install_fzf
+install_deno
