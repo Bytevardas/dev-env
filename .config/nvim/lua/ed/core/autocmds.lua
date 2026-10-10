@@ -18,7 +18,7 @@ autocmd("TextYankPost", {
   group = yank_group,
   pattern = "*",
   callback = function()
-    vim.highlight.on_yank({
+    vim.hl.on_yank({
       higroup = "IncSearch",
       timeout = 40,
     })
@@ -28,17 +28,22 @@ autocmd("TextYankPost", {
 autocmd("BufWritePre", {
   group = editor_group,
   pattern = "*",
-  command = [[%s/\s\+$//e]],
+  callback = function()
+    local window_view = vim.fn.winsaveview()
+    vim.cmd([[keeppatterns %s/\s\+$//e]])
+    vim.fn.winrestview(window_view)
+  end,
 })
 
 autocmd("BufEnter", {
   group = editor_group,
   callback = function()
-    if vim.bo.filetype == "zig" then
-      vim.cmd.colorscheme("tokyonight-night")
-    else
-      vim.cmd.colorscheme("gruvbox")
+    local wanted_colorscheme = vim.bo.filetype == "zig" and "tokyonight-night" or "gruvbox"
+    if vim.g.colors_name == wanted_colorscheme then
+      return
     end
+
+    ColorMyPencils(wanted_colorscheme)
   end,
 })
 
