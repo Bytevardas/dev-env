@@ -16,4 +16,4 @@ export PATH="$GOENV_ROOT/bin:$PATH"
 command -v goenv >/dev/null && eval "$(goenv init -)"
 
 # postgresql
-command -v brew >/dev/null && export PATH="$(brew --prefix postgresql@17)/bin:$PATH"
+[ -d /opt/homebrew/opt/postgresql@17/bin ] && export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
