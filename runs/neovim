@@ -24,7 +24,7 @@ checked_out_neovim_tag() {
     git -C "$neovim_directory" describe --tags --exact-match 2>/dev/null || true
 }
 
-install_build_dependency() {
+install_brew_formula() {
     local formula="$1"
     if brew list "$formula" &>/dev/null; then
         log "$formula: already installed, skipping"
@@ -64,14 +64,18 @@ build_and_install_neovim() {
 
 load_brew_into_path
 
+# nvim-treesitter builds its parsers with this at runtime, so it is
+# needed even when the editor itself is already built.
+install_brew_formula tree-sitter-cli
+
 if [ "$(installed_neovim_version)" == "$neovim_version" ]; then
     log "$neovim_version already installed, skipping"
     exit 0
 fi
 
-install_build_dependency cmake
-install_build_dependency gettext
-install_build_dependency luajit
+install_brew_formula cmake
+install_brew_formula gettext
+install_brew_formula luajit
 clone_neovim
 check_out_neovim_version
 build_and_install_neovim
