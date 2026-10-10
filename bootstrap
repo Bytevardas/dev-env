@@ -71,6 +71,7 @@ copy_file .ready-tmux ~/
 copy_dir .config "${XDG_CONFIG_HOME:-$HOME/.config}"
 copy_dir .local "$HOME/.local"
 
-# copy_dir only overlays, so the scripts that moved to .local/bin would
-# otherwise stay behind here as stale duplicates.
+# copy_dir only overlays, so anything deleted from the repo would
+# otherwise stay deployed.
 remove_retired_path "$HOME/.local/scripts"
+remove_retired_path "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/lua/ed/plugins/copilot.lua"
